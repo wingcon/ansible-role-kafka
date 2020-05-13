@@ -1,0 +1,105 @@
+---
+kafka_config_dir: "/opt/kafka/config/"
+kafka_log_config_dir: "/opt/kafka/config/"
+kafka_data_dir: "/var/kafka/"
+
+kafka_replication_factor: 1
+
+kafka_zookeeper_connection:
+  - localhost:2181
+
+kafka_logger_config_options:
+  - option: log4j.appender.kafkaAppender
+    value: org.apache.log4j.RollingFileAppender
+  - option: log4j.appender.kafkaAppender.MaxFileSize
+    value: 25MB
+  - option: log4j.appender.kafkaAppender.MaxBackupIndex
+    value: 25
+  - option: log4j.appender.kafkaAppender.DatePattern
+    value: 'do not care'
+    state: absent
+  - option: log4j.appender.stateChangeAppender
+    value: org.apache.log4j.RollingFileAppender
+  - option: log4j.appender.stateChangeAppender.MaxFileSize
+    value: 25MB
+  - option: log4j.appender.stateChangeAppender.MaxBackupIndex
+    value: 25
+  - option: log4j.appender.stateChangeAppender.DatePattern
+    value: 'do not care'
+    state: absent
+  - option: log4j.appender.requestAppender
+    value: org.apache.log4j.RollingFileAppender
+  - option: log4j.appender.requestAppender.MaxFileSize
+    value: 25MB
+  - option: log4j.appender.requestAppender.MaxBackupIndex
+    value: 25
+  - option: log4j.appender.requestAppender.DatePattern
+    value: 'do not care'
+    state: absent
+  - option: log4j.appender.cleanerAppender
+    value: org.apache.log4j.RollingFileAppender
+  - option: log4j.appender.cleanerAppender.MaxFileSize
+    value: 25MB
+  - option: log4j.appender.cleanerAppender.MaxBackupIndex
+    value: 25
+  - option: log4j.appender.cleanerAppender.DatePattern
+    value: 'do not care'
+    state: absent
+  - option: log4j.appender.controllerAppender
+    value: org.apache.log4j.RollingFileAppender
+  - option: log4j.appender.controllerAppender.MaxFileSize
+    value: 25MB
+  - option: log4j.appender.controllerAppender.MaxBackupIndex
+    value: 25
+  - option: log4j.appender.controllerAppender.DatePattern
+    value: 'do not care'
+    state: absent
+  - option: log4j.appender.authorizerAppender
+    value: org.apache.log4j.RollingFileAppender
+  - option: log4j.appender.authorizerAppender.MaxFileSize
+    value: 25MB
+  - option: log4j.appender.authorizerAppender.MaxBackupIndex
+    value: 25
+  - option: log4j.appender.authorizerAppender.DatePattern
+    value: 'do not care'
+    state: absent
+
+kafka_config_options:
+  - option: broker.id
+    value: 1
+  - option: zookeeper.connect
+    value: "{{ kafka_zookeeper_connection | join(',') }}"
+  - option: num.partitions
+    value: 2
+  - option: num.network.threads
+    value: 6
+  - option: socket.send.buffer.bytes
+    value: 102400
+  - option: socket.receive.buffer.bytes
+    value: 102400
+  - option: socket.request.max.bytes
+    value: 104857600
+  - option: log.dirs
+    value: "{{ kafka_data_dir }}"
+  - option: offsets.topic.replication.factor
+    value: "{{kafka_replication_factor}}"
+  - option: transaction.state.log.replication.factor
+    value: "{{kafka_replication_factor}}"
+  - option: transaction.state.log.min.isr
+    value: "{{kafka_replication_factor}}"
+  - option: log.retention.hours
+    value: 168
+  - option: log.segment.bytes
+    value: 1073741824
+  - option: log.retention.check.interval.ms
+    value: 60000
+  - option: zookeeper.connection.timeout.ms
+    value: 6000
+  - option: zookeeper.session.timeout.ms
+    value: 30000
+  - option: group.initial.rebalance.delay.ms
+    value: 0
+  - option: connections.max.idle.ms
+    value: 36000000
+  - option: unclean.leader.election.enable
+    value: false

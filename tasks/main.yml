@@ -1,0 +1,63 @@
+---
+- name: Create kafka user and group
+  include_role:
+    name: users
+  vars:
+    users:
+      - username: kafka
+        name: kafka
+        home: /opt/kafka
+        shell: /usr/sbin/nologin
+        is_system_user: true
+    groups_to_create:
+      - name: kafka
+
+- name: Change /opt/kafka ownership, group and permissions
+  file:
+    path: /opt/kafka
+    owner: kafka
+    group: kafka
+    mode: '0755'
+    state: directory
+    recurse: yes
+
+- name: Change /wsp_var/log/kafka ownership, group and permissions
+  file:
+    path: /wsp_var/log/kafka
+    owner: kafka
+    group: kafka
+    mode: '0744'
+    state: directory
+    recurse: yes
+
+- name: Change data_dir ownership, group and permissions
+  file:
+    path: "{{ kafka_data_dir }}"
+    owner: kafka
+    group: kafka
+    mode: '0740'
+    state: directory
+    recurse: yes
+
+- name: Configure logger settings
+  lineinfile:
+    dest: "{{ kafka_log_config_dir }}log4j.properties"
+    regexp: "^#?{{ item.option }}\\s*=.+$"
+    line: "{{ item.option }}={{ item.value }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ kafka_logger_config_options }}"
+  notify: restart kafka
+
+- name: Configure kafka settings
+  lineinfile:
+    dest: "{{ kafka_config_dir }}kafka-server.conf"
+    regexp: "^#?{{ item.option }}\\s*=.+$"
+    line: "{{ item.option }}={{ item.value }}"
+    state: "{{ item.state | default('present') }}"
+  with_items: "{{ kafka_config_options }}"
+  notify: restart kafka
+
+- name: enable kafka service
+  service:
+    name: "kafka"
+    enabled: "yes"
