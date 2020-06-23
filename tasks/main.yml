@@ -60,4 +60,5 @@
 - name: enable kafka service
   service:
     name: "kafka"
-    enabled: "yes"
+    state: "{{ kafka_enabled | ternary('started', 'stopped') }}"
+    enabled: "{{ kafka_enabled }}"

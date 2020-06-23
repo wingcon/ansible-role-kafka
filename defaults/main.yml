@@ -1,4 +1,6 @@
 ---
+kafka_enabled: True
+
 kafka_config_dir: "/opt/kafka/config/"
 kafka_log_config_dir: "/opt/kafka/config/"
 kafka_data_dir: "/var/kafka/"
