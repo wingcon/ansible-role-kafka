@@ -1,0 +1,39 @@
+---
+- name: Install wingcon kafka package
+  hosts: all
+  tasks:
+    - name: install gpg
+      apt:
+        name:
+          - gnupg2
+          - apt-utils
+        update_cache: true
+        state: present
+    - name: Add an Apt signing key, uses whichever key is at the URL
+      apt_key:
+        url: http://aptly.wingcon.com/wingcon_package_key.gpg
+    - name: add wingcon package pool
+      apt_repository:
+        update_cache: false
+        repo: "{{ item }}"
+      loop:
+        - deb http://aptly.wingcon.com/ubuntu20 focal main
+        - deb http://aptly.wingcon.com/ubuntu20 focal-updates main
+        - deb http://aptly.wingcon.com/ubuntu20 focal-security main
+        - deb http://aptly.wingcon.com/ubuntu20 5.0 main
+        - deb http://aptly.wingcon.com/ master testing
+    - name: backup policy-rc.d (workaround for apt:policy_rc_d not working)
+      command: cp /usr/sbin/policy-rc.d /usr/sbin/policy-rc.d.bak
+    - name: disable starting services on package install (workaround for apt:policy_rc_d not working)
+      command: printf '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d
+    - name: install wingcon kafka package
+      environment:
+        RUNLEVEL: 1
+      apt:
+        name: wingcon-os-kafka
+        update_cache: yes
+        install_recommends: no
+        #policy_rc_d: 101 # broken in ansible 2.9 and 2.10
+        state: present
+    - name: revert change on /usr/sbin/policy-rc.d (workaround for apt:policy_rc_d not working)
+      command: cp /usr/sbin/policy-rc.d.abk /usr/sbin/policy-rc.d
