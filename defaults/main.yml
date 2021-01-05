@@ -75,6 +75,8 @@ kafka_config_options:
     value: 2
   - option: num.network.threads
     value: 6
+  - option: default.replication.factor
+    value: "{{ kafka_replication_factor }}"
   - option: socket.send.buffer.bytes
     value: 102400
   - option: socket.receive.buffer.bytes
