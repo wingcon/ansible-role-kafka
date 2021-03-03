@@ -4,7 +4,8 @@ kafka_enabled: True
 kafka_config_dir: "/opt/kafka/config/"
 kafka_log_config_dir: "/opt/kafka/config/"
 kafka_data_dir: "/var/kafka/"
-
+kafka_broker_id: 1
+kafka_num_partitions: 2
 kafka_replication_factor: 1
 
 kafka_zookeeper_connection:
@@ -68,11 +69,11 @@ kafka_logger_config_options:
 
 kafka_config_options:
   - option: broker.id
-    value: 1
+    value: "{{ kafka_broker_id }}"
   - option: zookeeper.connect
     value: "{{ kafka_zookeeper_connection | join(',') }}"
   - option: num.partitions
-    value: 2
+    value: "{{ kafka_num_partitions }}"
   - option: num.network.threads
     value: 6
   - option: default.replication.factor
