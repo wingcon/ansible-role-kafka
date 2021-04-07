@@ -8,8 +8,30 @@ kafka_broker_id: 1
 kafka_num_partitions: 2
 kafka_replication_factor: 1
 
-kafka_zookeeper_connection:
-  - localhost:2181
+kafka_zookeeper_default_port: 2181
+
+# servers list can be given as plain string list or map
+# kafka_zookeeper_servers: ["localhost"]
+# kafka_zookeeper_servers: ["localhost:2181"]
+# kafka_zookeeper_servers: [{"host": "localhost", "port": 2181}]
+kafka_zookeeper_servers:
+  - localhost
+
+kafka_zookeeper_connection: >-
+  [
+  {% for server in kafka_zookeeper_servers %}
+  {% if server is mapping %}
+  '{{ server.host }}:{% if 'port' in server %}{{ server.port }}{% else %}{{ kafka_zookeeper_default_port }}{% endif %}'
+  {% elif ':' in server %}
+  '{{ server }}'
+  {% else %}
+  '{{ server }}:{{ kafka_zookeeper_default_port }}'
+  {% endif %}
+  {{ "," if not loop.last else "" }}
+  {% endfor %}
+  ]
+
+kafka_zookeeper_connection_string: "{{ kafka_zookeeper_connection | sort | join(',') }}"
 
 kafka_logger_config_options:
   - option: log4j.appender.kafkaAppender
@@ -71,7 +93,7 @@ kafka_config_options:
   - option: broker.id
     value: "{{ kafka_broker_id }}"
   - option: zookeeper.connect
-    value: "{{ kafka_zookeeper_connection | join(',') }}"
+    value: "{{ kafka_zookeeper_connection_string }}"
   - option: num.partitions
     value: "{{ kafka_num_partitions }}"
   - option: num.network.threads
