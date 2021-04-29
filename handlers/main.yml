@@ -1,4 +1,7 @@
 ---
+- name: reset kafka data
+  include_tasks: reset_data.yml
+
 - name: restart kafka
   service:
     name: "kafka"

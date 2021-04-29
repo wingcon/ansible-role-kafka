@@ -1,0 +1,10 @@
+---
+- name: stop service
+  service:
+    name: "kafka"
+    state: "stopped"
+
+- name: reset data
+  file:
+    path: "{{ kafka_data_dir }}"
+    state: absent

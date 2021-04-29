@@ -30,6 +30,24 @@
     state: directory
     recurse: yes
 
+- name: write cluster identifiers to a helper file
+  lineinfile:
+    dest: "{{ kafka_config_dir }}/kafka-meta.helper.txt"
+    owner: kafka
+    group: kafka
+    mode: '0740'
+    regexp: "^{{ item }}"
+    line: "{{ item }}"
+    create: yes
+  loop:
+    - "#this file is managed by ansible"
+    - "broker_id: {{ kafka_broker_id }}"
+    - "zookeeper_connection: {{ kafka_zookeeper_connection_string }}"
+  notify: reset kafka data
+
+- name: Flush handlers (reset data if needed)
+  meta: flush_handlers
+
 - name: Change data_dir ownership, group and permissions
   file:
     path: "{{ kafka_data_dir }}"
