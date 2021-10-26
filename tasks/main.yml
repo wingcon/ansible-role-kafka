@@ -81,3 +81,7 @@
     state: "{{ kafka_enabled | ternary('started', 'stopped') }}"
     enabled: "{{ kafka_enabled }}"
     daemon_reload: yes
+
+- name: reassign partition replication
+  import_tasks: reassign_replication.yml
+  when: kafka_reassign_replication | bool

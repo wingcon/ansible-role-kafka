@@ -1,0 +1,24 @@
+---
+- name: get topic description
+  shell:
+    cmd: "/opt/kafka/bin/kafka-topics.sh --zookeeper {{ kafka_zookeeper_connection_string | split(',') | first }} --describe | grep ^T | sed s/'Topic: \\([a-zA-Z0-9._-]*\\)\\s*PartitionCount: \\([0-9]*\\)\\s*ReplicationFactor: \\([0-9]*\\)\\s*Configs:.*'/'\\1#\\2#\\3'/"
+  register: reg_topic_description
+  changed_when: false
+
+- name: set topic description
+  set_fact:
+    topic_description: "{{ reg_topic_description.stdout | split('\n') | map('split', '#') }}"
+
+- name: create reassignment config
+  template:
+    src: reassignment-json-file.json.j2
+    dest: /tmp/reassignment-json-file.json
+
+- name: reassignment changes pending?
+  set_fact:
+    reassignment_changes_pending: "{{ ((lookup('file','/tmp/reassignment-json-file.json') | from_json).partitions | length) > 0 }}"
+
+- name: apply reassignment config
+  shell:
+    cmd: /opt/kafka/bin/kafka-reassign-partitions.sh --zookeeper {{ kafka_zookeeper_connection_string | split(',') | first }} --reassignment-json-file /tmp/reassignment-json-file.json --execute
+  when: reassignment_changes_pending | bool
