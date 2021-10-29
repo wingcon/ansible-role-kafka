@@ -22,3 +22,4 @@
   shell:
     cmd: /opt/kafka/bin/kafka-reassign-partitions.sh --zookeeper {{ kafka_zookeeper_connection_string.split(',') | first }} --reassignment-json-file /tmp/reassignment-json-file.json --execute
   when: reassignment_changes_pending | bool
+  ignore_errors: yes
