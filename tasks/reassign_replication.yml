@@ -13,10 +13,12 @@
   template:
     src: reassignment-json-file.json.j2
     dest: /tmp/reassignment-json-file.json
+  when: topic_description | length > 2
 
 - name: reassignment changes pending?
   set_fact:
     reassignment_changes_pending: "{{ ((lookup('file','/tmp/reassignment-json-file.json') | from_json).partitions | length) > 0 }}"
+  when: topic_description | length > 2
 
 - name: apply reassignment config
   shell:
