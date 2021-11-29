@@ -1,6 +1,6 @@
 ---
 - name: stop service
-  service:
+  systemd:
     name: "kafka"
     state: "stopped"
 

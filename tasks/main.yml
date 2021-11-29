@@ -31,18 +31,12 @@
     recurse: yes
 
 - name: write cluster identifiers to a helper file
-  lineinfile:
+  template:
+    src: kafka-meta.helper.txt.j2
     dest: "{{ kafka_config_dir }}/kafka-meta.helper.txt"
     owner: kafka
     group: kafka
     mode: '0740'
-    regexp: "^{{ item }}"
-    line: "{{ item }}"
-    create: yes
-  loop:
-    - "#this file is managed by ansible"
-    - "broker_id: {{ kafka_broker_id }}"
-    - "zookeeper_connection: {{ kafka_zookeeper_connection_string }}"
   notify: reset kafka data
 
 - name: Flush handlers (reset data if needed)
@@ -58,21 +52,21 @@
     recurse: yes
 
 - name: Configure logger settings
-  lineinfile:
+  template:
+    src: log4j.properties.j2
     dest: "{{ kafka_log_config_dir }}log4j.properties"
-    regexp: "^#?{{ item.option }}\\s*=.+$"
-    line: "{{ item.option }}={{ item.value }}"
-    state: "{{ item.state | default('present') }}"
-  with_items: "{{ kafka_logger_config_options }}"
+    owner: kafka
+    group: kafka
+    mode: '0640'
   notify: restart kafka
 
 - name: Configure kafka settings
-  lineinfile:
+  template:
+    src: kafka-server.conf.j2
     dest: "{{ kafka_config_dir }}kafka-server.conf"
-    regexp: "^#?{{ item.option }}\\s*=.+$"
-    line: "{{ item.option }}={{ item.value }}"
-    state: "{{ item.state | default('present') }}"
-  with_items: "{{ kafka_config_options }}"
+    owner: kafka
+    group: kafka
+    mode: '0640'
   notify: restart kafka
 
 - name: enable kafka service

@@ -3,8 +3,8 @@ kafka_enabled: True
 
 kafka_config_dir: "/opt/kafka/config/"
 kafka_log_config_dir: "/opt/kafka/config/"
-kafka_data_dir: "/var/kafka/"
-kafka_broker_id: 1
+kafka_data_dir: "/tmp/kafka-logs"
+kafka_broker_id: 0
 kafka_num_partitions: 2
 kafka_replication_factor: 1
 
@@ -35,73 +35,117 @@ kafka_zookeeper_connection: >-
 
 kafka_zookeeper_connection_string: "{{ kafka_zookeeper_connection | sort | join(',') }}"
 
-kafka_logger_config_options:
-  - option: log4j.appender.kafkaAppender
-    value: org.apache.log4j.RollingFileAppender
-  - option: log4j.appender.kafkaAppender.MaxFileSize
-    value: 25MB
-  - option: log4j.appender.kafkaAppender.MaxBackupIndex
-    value: 25
-  - option: log4j.appender.kafkaAppender.DatePattern
-    value: 'do not care'
-    state: absent
-  - option: log4j.appender.stateChangeAppender
-    value: org.apache.log4j.RollingFileAppender
-  - option: log4j.appender.stateChangeAppender.MaxFileSize
-    value: 25MB
-  - option: log4j.appender.stateChangeAppender.MaxBackupIndex
-    value: 25
-  - option: log4j.appender.stateChangeAppender.DatePattern
-    value: 'do not care'
-    state: absent
-  - option: log4j.appender.requestAppender
-    value: org.apache.log4j.RollingFileAppender
-  - option: log4j.appender.requestAppender.MaxFileSize
-    value: 25MB
-  - option: log4j.appender.requestAppender.MaxBackupIndex
-    value: 25
-  - option: log4j.appender.requestAppender.DatePattern
-    value: 'do not care'
-    state: absent
-  - option: log4j.appender.cleanerAppender
-    value: org.apache.log4j.RollingFileAppender
-  - option: log4j.appender.cleanerAppender.MaxFileSize
-    value: 25MB
-  - option: log4j.appender.cleanerAppender.MaxBackupIndex
-    value: 25
-  - option: log4j.appender.cleanerAppender.DatePattern
-    value: 'do not care'
-    state: absent
-  - option: log4j.appender.controllerAppender
-    value: org.apache.log4j.RollingFileAppender
-  - option: log4j.appender.controllerAppender.MaxFileSize
-    value: 25MB
-  - option: log4j.appender.controllerAppender.MaxBackupIndex
-    value: 25
-  - option: log4j.appender.controllerAppender.DatePattern
-    value: 'do not care'
-    state: absent
-  - option: log4j.appender.authorizerAppender
-    value: org.apache.log4j.RollingFileAppender
-  - option: log4j.appender.authorizerAppender.MaxFileSize
-    value: 25MB
-  - option: log4j.appender.authorizerAppender.MaxBackupIndex
-    value: 25
-  - option: log4j.appender.authorizerAppender.DatePattern
-    value: 'do not care'
-    state: absent
+kafka_logger_config_options: []
 
-kafka_config_options:
+kafka_logger_config_options_defaults:
+  - option: log4j.rootLogger
+    value: INFO, stdout, kafkaAppender
+  - option: log4j.appender.stdout
+    value: org.apache.log4j.ConsoleAppender
+  - option: log4j.appender.stdout.layout
+    value: org.apache.log4j.PatternLayout
+  - option: log4j.appender.stdout.layout.ConversionPattern
+    value: "[%d] %p %m (%c)%n"
+  - option: log4j.appender.kafkaAppender
+    value: org.apache.log4j.DailyRollingFileAppender
+  - option: log4j.appender.kafkaAppender.DatePattern
+    value: "'.'yyyy-MM-dd-HH"
+  - option: log4j.appender.kafkaAppender.File
+    value: ${kafka.logs.dir}/server.log
+  - option: log4j.appender.kafkaAppender.layout
+    value: org.apache.log4j.PatternLayout
+  - option: log4j.appender.kafkaAppender.layout.ConversionPattern
+    value: "[%d] %p %m (%c)%n"
+  - option: log4j.appender.stateChangeAppender
+    value: org.apache.log4j.DailyRollingFileAppender
+  - option: log4j.appender.stateChangeAppender.DatePattern
+    value: "'.'yyyy-MM-dd-HH"
+  - option: log4j.appender.stateChangeAppender.File
+    value: ${kafka.logs.dir}/state-change.log
+  - option: log4j.appender.stateChangeAppender.layout
+    value: org.apache.log4j.PatternLayout
+  - option: log4j.appender.stateChangeAppender.layout.ConversionPattern
+    value: "[%d] %p %m (%c)%n"
+  - option: log4j.appender.requestAppender
+    value: org.apache.log4j.DailyRollingFileAppender
+  - option: log4j.appender.requestAppender.DatePattern
+    value: "'.'yyyy-MM-dd-HH"
+  - option: log4j.appender.requestAppender.File
+    value: ${kafka.logs.dir}/kafka-request.log
+  - option: log4j.appender.requestAppender.layout
+    value: org.apache.log4j.PatternLayout
+  - option: log4j.appender.requestAppender.layout.ConversionPattern
+    value: "[%d] %p %m (%c)%n"
+  - option: log4j.appender.cleanerAppender
+    value: org.apache.log4j.DailyRollingFileAppender
+  - option: log4j.appender.cleanerAppender.DatePattern
+    value: "'.'yyyy-MM-dd-HH"
+  - option: log4j.appender.cleanerAppender.File
+    value: ${kafka.logs.dir}/log-cleaner.log
+  - option: log4j.appender.cleanerAppender.layout
+    value: org.apache.log4j.PatternLayout
+  - option: log4j.appender.cleanerAppender.layout.ConversionPattern
+    value: "[%d] %p %m (%c)%n"
+  - option: log4j.appender.controllerAppender
+    value: org.apache.log4j.DailyRollingFileAppender
+  - option: log4j.appender.controllerAppender.DatePattern
+    value: "'.'yyyy-MM-dd-HH"
+  - option: log4j.appender.controllerAppender.File
+    value: ${kafka.logs.dir}/controller.log
+  - option: log4j.appender.controllerAppender.layout
+    value: org.apache.log4j.PatternLayout
+  - option: log4j.appender.controllerAppender.layout.ConversionPattern
+    value: "[%d] %p %m (%c)%n"
+  - option: log4j.appender.authorizerAppender
+    value: org.apache.log4j.DailyRollingFileAppender
+  - option: log4j.appender.authorizerAppender.DatePattern
+    value: "'.'yyyy-MM-dd-HH"
+  - option: log4j.appender.authorizerAppender.File
+    value: ${kafka.logs.dir}/kafka-authorizer.log
+  - option: log4j.appender.authorizerAppender.layout
+    value: org.apache.log4j.PatternLayout
+  - option: log4j.appender.authorizerAppender.layout.ConversionPattern
+    value: "[%d] %p %m (%c)%n"
+  - option: log4j.logger.org.apache.zookeeper
+    value: INFO
+  - option: log4j.logger.kafka
+    value: INFO
+  - option: log4j.logger.org.apache.kafka
+    value: INFO
+  - option: log4j.logger.kafka.request.logger
+    value: WARN, requestAppender
+  - option: log4j.additivity.kafka.request.logger
+    value: "false"
+  - option: log4j.logger.kafka.network.RequestChannel$
+    value: WARN, requestAppender
+  - option: log4j.additivity.kafka.network.RequestChannel$
+    value: "false"
+  - option: log4j.logger.kafka.controller
+    value: TRACE, controllerAppender
+  - option: log4j.additivity.kafka.controller
+    value: "false"
+  - option: log4j.logger.kafka.log.LogCleaner
+    value: INFO, cleanerAppender
+  - option: log4j.additivity.kafka.log.LogCleaner
+    value: "false"
+  - option: log4j.logger.state.change.logger
+    value: INFO, stateChangeAppender
+  - option: log4j.additivity.state.change.logger
+    value: "false"
+  - option: log4j.logger.kafka.authorizer.logger
+    value: INFO, authorizerAppender
+  - option: log4j.additivity.kafka.authorizer.logger
+    value: "false"
+
+kafka_config_options: []
+
+kafka_config_options_defaults:
   - option: broker.id
     value: "{{ kafka_broker_id }}"
-  - option: zookeeper.connect
-    value: "{{ kafka_zookeeper_connection_string }}"
-  - option: num.partitions
-    value: "{{ kafka_num_partitions }}"
   - option: num.network.threads
-    value: 6
-  - option: default.replication.factor
-    value: "{{ kafka_replication_factor }}"
+    value: 3
+  - option: num.io.threads
+    value: 8
   - option: socket.send.buffer.bytes
     value: 102400
   - option: socket.receive.buffer.bytes
@@ -110,25 +154,27 @@ kafka_config_options:
     value: 104857600
   - option: log.dirs
     value: "{{ kafka_data_dir }}"
+  - option: num.partitions
+    value: "{{ kafka_num_partitions }}"
+  - option: num.recovery.threads.per.data.dir
+    value: 1
+  - option: default.replication.factor
+    value: "{{ kafka_replication_factor }}"
   - option: offsets.topic.replication.factor
-    value: "{{kafka_replication_factor}}"
+    value: "{{ kafka_replication_factor }}"
   - option: transaction.state.log.replication.factor
-    value: "{{kafka_replication_factor}}"
+    value: "{{ kafka_replication_factor }}"
   - option: transaction.state.log.min.isr
-    value: "{{kafka_replication_factor}}"
+    value: "{{ kafka_replication_factor }}"
   - option: log.retention.hours
     value: 168
   - option: log.segment.bytes
     value: 1073741824
   - option: log.retention.check.interval.ms
-    value: 60000
+    value: 300000
+  - option: zookeeper.connect
+    value: "{{ kafka_zookeeper_connection_string }}"
   - option: zookeeper.connection.timeout.ms
-    value: 6000
-  - option: zookeeper.session.timeout.ms
-    value: 30000
+    value: 18000
   - option: group.initial.rebalance.delay.ms
     value: 0
-  - option: connections.max.idle.ms
-    value: 36000000
-  - option: unclean.leader.election.enable
-    value: false

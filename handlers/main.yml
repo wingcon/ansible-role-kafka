@@ -3,7 +3,6 @@
   include_tasks: reset_data.yml
 
 - name: restart kafka
-  service:
+  systemd:
     name: "kafka"
     state: "restarted"
-    sleep: 5
