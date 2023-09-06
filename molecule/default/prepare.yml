@@ -31,8 +31,8 @@
         RUNLEVEL: 1
       apt:
         name: wingcon-os-kafka
-        update_cache: yes
-        install_recommends: no
+        update_cache: true
+        install_recommends: false
         #policy_rc_d: 101 # broken in ansible 2.9 and 2.10
         state: present
     - name: revert change on /usr/sbin/policy-rc.d (workaround for apt:policy_rc_d not working)

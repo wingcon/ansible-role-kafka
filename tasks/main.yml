@@ -19,7 +19,7 @@
     group: kafka
     mode: '0755'
     state: directory
-    recurse: yes
+    recurse: true
 
 - name: Change /wsp_var/log/kafka ownership, group and permissions
   file:
@@ -28,7 +28,7 @@
     group: kafka
     mode: '0744'
     state: directory
-    recurse: yes
+    recurse: true
 
 - name: write cluster identifiers to a helper file
   template:
@@ -49,7 +49,7 @@
     group: kafka
     mode: '0740'
     state: directory
-    recurse: yes
+    recurse: true
 
 - name: Configure logger settings
   template:
@@ -74,7 +74,7 @@
     name: "kafka"
     state: "{{ kafka_enabled | ternary('started', 'stopped') }}"
     enabled: "{{ kafka_enabled }}"
-    daemon_reload: yes
+    daemon_reload: true
 
 - name: reassign partition replication
   import_tasks: reassign_replication.yml
