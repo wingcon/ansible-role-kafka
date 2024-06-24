@@ -2,17 +2,18 @@
     "version":1,
     "partitions":
     [
-    {% for desc_item in topic_description %}
-    {% set desc = desc_item.split('#') %}
-    {% if (desc[2] | int) < kafka_replication_factor %}
-    {% for partition in range(desc[1] | int) %}
-    {"topic": "{{ desc[0] }}",
+{% for desc_item in topic_description if (desc_item['isrs'] | int) < kafka_replication_factor %}
+{% for partition in range(desc_item['partitions'] | int) %}
+      {
+        "topic": "{{ desc_item['name'] }}",
         "partition": {{ partition }},
         "replicas": {% if loop.index % 2 %}[{% for repl in range(kafka_replication_factor)|reverse %}{{ repl + 1 }}{% if not loop.last %},{% endif %}{% endfor %}]{% else %}[{% for repl in range(kafka_replication_factor) %}{{ repl + 1 }}{% if not loop.last %},{% endif %}{% endfor %}]{% endif %}
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-    {% if not loop.last %},{% endif %}
-    {% endif %}
-    {% endfor %}
+
+      }{% if not loop.last %},{% endif %}
+{% endfor %}
+{% if not loop.last %},
+{% endif %}
+{% endfor %}
+
     ]
 }
